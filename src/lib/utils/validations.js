@@ -39,7 +39,10 @@ const phoneNumber = (values, helpers) => {
     }
 }
 
+const userNamePattern = /^(?!.*\.\.)(?!\.)(?!.*\.$)[a-zA-Z0-9._]{6,15}$/;
+
 module.exports = {
     objectId,
-    phoneNumber
+    phoneNumber,
+    userNamePattern
 }

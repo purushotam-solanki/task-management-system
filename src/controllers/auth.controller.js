@@ -9,11 +9,9 @@ const { authTokenCookiesKeys, roles } = require('@src/lib/constant');
 const { authTokenService } = require('@src/services');
 
 const sendOtp = catchAsync(async (req, res) => {
+    const { phoneNumber } = req.body
     const filter = {
-        phoneNumber: {
-            countryCode: req.body.countryCode,
-            number: req.body.number
-        }
+        phoneNumber
     }
     const user = await UserModel.findOne(filter, { phoneNumber: 1 }).lean()
     if (!user) {
@@ -40,12 +38,10 @@ const sendOtp = catchAsync(async (req, res) => {
 });
 
 const verifyOtp = catchAsync(async (req, res) => {
+    const { phoneNumber, otp: incomingOtp } = req.body
     const filter = {
-        phoneNumber: {
-            countryCode: req.body.countryCode,
-            number: req.body.number,
-        },
-        "otpDetails.otp": req.body.otp
+        phoneNumber,
+        "otpDetails.otp": incomingOtp
     }
     const user = await UserModel.findOne(filter, { otpDetails: 0, statusHistory: 0 });
     if (!user) {
@@ -85,13 +81,16 @@ const signUp = catchAsync(async (req, res) => {
     const data = {
         ...req.body,
         userId: generateId("US"),
-        role: roles.USER
+        role: roles.ADMIN
     };
     if (data?.email && await UserModel.isEmailTaken(data?.email)) {
         throw new Error("Email already taken.")
     }
     if (data?.phoneNumber?.number && await UserModel.isPhoneNumberTaken(data?.phoneNumber?.number)) {
         throw new Error("Phone number already taken.")
+    }
+    if (data.userName && await UserModel.isUserNameTaken(data?.userName)) {
+        throw new Error("Username already taken.")
     }
     const user = await UserModel.create(data)
     /**

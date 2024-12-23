@@ -28,37 +28,37 @@ const getTaskWithComments = async (taskId) => {
 const deleteTask = async (taskId) => {
     /**
      * NOTE: In local, Mongodb does not support transaction direclty because transaction 
-     * works on replica sets not on standalone instance, So for this purpose I'm not using transaction as of now
+     * works on replica sets not on standalone instance
      */
-    // const session = await mongoose.startSession();
-    // session.startTransaction();
-    // try {
-    //     // Delete the task
-    //     const taskDeletion = await TaskModel.deleteOne({ _id: taskId }, { session });
-    //     if (taskDeletion.deletedCount === 0) {
-    //         throw new Error('Task not found');
-    //     }
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        // Delete the task
+        const taskDeletion = await TaskModel.deleteOne({ _id: taskId }, { session });
+        if (taskDeletion.deletedCount === 0) {
+            throw new Error('Task not found');
+        }
 
-    //     // Delete associated comments
-    //     await CommentModel.deleteMany({ taskId }, { session });
+        // Delete associated comments
+        await CommentModel.deleteMany({ task: taskId }, { session });
 
-    //     // Commit the transaction
-    //     await session.commitTransaction();
-    //     console.log('Task and associated comments deleted successfully');
-    // } catch (error) {
-    //     // Abort the transaction in case of an error
-    //     await session.abortTransaction();
-    //     console.error('Transaction aborted:', error.message);
-    // } finally {
-    //     session.endSession();
-    // }
-
-    const taskDeletion = await TaskModel.deleteOne({ _id: taskId });
-    if (taskDeletion.deletedCount === 0) {
-        throw new Error('Task not found');
+        // Commit the transaction
+        await session.commitTransaction();
+        console.log('Task and associated comments deleted successfully');
+    } catch (error) {
+        // Abort the transaction in case of an error
+        await session.abortTransaction();
+        console.error('Transaction aborted:', error.message);
+    } finally {
+        session.endSession();
     }
-    // Delete associated comments
-    await CommentModel.deleteMany({ task: taskId });
+
+    // const taskDeletion = await TaskModel.deleteOne({ _id: taskId });
+    // if (taskDeletion.deletedCount === 0) {
+    //     throw new Error('Task not found');
+    // }
+    // // Delete associated comments
+    // await CommentModel.deleteMany({ task: taskId });
 };
 const getAllTasks = async (filter = {}, options = {}) => {
     const pipeline = [

@@ -3,6 +3,7 @@ const validator = require('validator');
 const paginate = require("mongoose-paginate-v2")
 
 const { roles, userStatus } = require('@lib/constant');
+const { required } = require('joi');
 
 const userSchema = mongoose.Schema(
     {
@@ -17,6 +18,7 @@ const userSchema = mongoose.Schema(
             trim: true,
             lowercase: true,
             index: true,
+            required: true,
             validate(value) {
                 if (!validator.isEmail(value)) {
                     throw new Error('Invalid email');
@@ -31,7 +33,8 @@ const userSchema = mongoose.Schema(
             type: String,
             trim: true,
             unique: true,
-            index: true
+            index: true,
+            required: true
         },
         profilePic: {
             type: String
@@ -43,15 +46,15 @@ const userSchema = mongoose.Schema(
             },
             number: {
                 type: String,
-                unique: true,
-                required: true,
-                index: true
+                index: true,
+                required: true
             }
         },
         userId: {
             type: String,
             unique: true,
             index: true,
+            required: true
         },
         otpDetails: {
             otp: {
@@ -117,6 +120,11 @@ userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
 userSchema.statics.isPhoneNumberTaken = async function (phoneNumber, excludeUserId) {
     phoneNumber = phoneNumber?.toString()
     const user = await this.findOne({ "phoneNumber.number": phoneNumber, _id: { $ne: excludeUserId } });
+    return !!user;
+};
+
+userSchema.statics.isUserNameTaken = async function (username, excludeUserId) {
+    const user = await this.findOne({ userName: new RegExp(`^${username}$`, 'i'), _id: { $ne: excludeUserId } });
     return !!user;
 };
 
