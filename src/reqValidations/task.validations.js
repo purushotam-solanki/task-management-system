@@ -23,6 +23,9 @@ const createTask = {
 };
 
 const updateTask = {
+    params: Joi.object().keys({
+        taskId: Joi.string().required().custom(objectId)
+    }),
     body: Joi.object(taskBodyBaseSchema),
 };
 

@@ -86,10 +86,11 @@ const getTaskById = async (taskId = "") => {
 const updateTask = async (filter = {}, updatedDetails = {}) => {
     const updatedTask = await TaskModel.findOneAndUpdate(
         filter,
-        { $set: { updatedDetails } },
+        { $set: updatedDetails },
         {
             new: true,
-            runValidators: true
+            runValidators: true,
+            upsert: false,
         }
     );
     return updatedTask

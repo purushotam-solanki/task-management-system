@@ -109,7 +109,7 @@ const updateTask = catchAsync(async (req, res) => {
             data: null
         })
     }
-    const updatedTask = await taskService.updateTask({ _id: taskId }, { updatedDtails });
+    const updatedTask = await taskService.updateTask({ _id: taskId }, updatedDtails);
     return res.status(httpStatus.OK).json({
         message: "Task updated successfully.",
         data: updatedTask
