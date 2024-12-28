@@ -11,13 +11,18 @@ const httpStatus = require('http-status');
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 
-const { envFlag, cors: { corsOptions }, passport: { jwtStrategy } } = require('@lib/config');
+const { envFlag, cors: { corsOptions }, passport: { jwtStrategy }, morgan } = require('@lib/config');
 const { error: { errorConverter, errorHandler }, slowloris } = require('@lib/middlewares');
 const { ApiError } = require('@utils');
 const routes = require('./routes/v1');
 const { authTokenCookiesKeys } = require('./lib/constant');
 
 const app = express();
+
+if (envFlag.env !== 'test') {
+    app.use(morgan.successHandler);
+    app.use(morgan.errorHandler);
+}
 
 app.use(cookieParser())
 // set security HTTP headers
