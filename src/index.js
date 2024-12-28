@@ -15,10 +15,16 @@ const exitHandler = () => {
     if (server) {
         server.close(() => {
             logger.info('Server closed');
-            process.exit(1);
+            mongoose.connection.close(false, () => {
+                logger.info('MongoDB connection closed');
+                process.exit(1);
+            });
         });
     } else {
-        process.exit(1);
+        mongoose.connection.close(false, () => {
+            logger.info('MongoDB connection closed');
+            process.exit(1);
+        });
     }
 };
 
